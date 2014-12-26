@@ -1,0 +1,8 @@
+C:\Users\huhp\Documents\Visual Studio 2013\Projects\My_IE\My_IE\bin\Release\My_IE.exe
+C:\Users\huhp\Documents\Visual Studio 2013\Projects\My_IE\My_IE\bin\Release\My_IE.pdb
+C:\Users\huhp\Documents\Visual Studio 2013\Projects\My_IE\My_IE\obj\Release\My_IE.Properties.Resources.resources
+C:\Users\huhp\Documents\Visual Studio 2013\Projects\My_IE\My_IE\obj\Release\My_IE.csproj.GenerateResource.Cache
+C:\Users\huhp\Documents\Visual Studio 2013\Projects\My_IE\My_IE\obj\Release\My_IE.exe
+C:\Users\huhp\Documents\Visual Studio 2013\Projects\My_IE\My_IE\obj\Release\My_IE.pdb
+C:\Users\huhp\Documents\Visual Studio 2013\Projects\My_IE\My_IE\obj\Release\My_IE.csprojResolveAssemblyReference.cache
+C:\Users\huhp\Documents\Visual Studio 2013\Projects\My_IE\My_IE\obj\Release\My_IE.IEForm.resources
