@@ -853,7 +853,7 @@ namespace My_IE
                             ht.Add(mDr[OleDsExcle.Tables[0].Columns[n]].ToString(), mDr[OleDsExcle.Tables[0].Columns[v]].ToString());
                         else
                             blank++;
-                        if (blank > 5) break;
+                        if (blank > 6) break;
                     }
                 }*/
                 if (OleReader.HasRows)
