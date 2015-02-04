@@ -7,12 +7,16 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Xml;
+using System.Web;
+using System.Net;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Data.OleDb;
 using System.Threading;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using MyExcel = Microsoft.Office.Interop.Excel;  
+//using Microsoft.Office.Interop.Excel;
 
 namespace My_IE
 {
@@ -23,7 +27,7 @@ namespace My_IE
         private ToolStripDropDownButton tsdRight;
         private ToolStripDropDownButton tsdClose;
         private ToolStripDropDownButton tsdZhuye;
-        private ToolStripDropDownButton tsdShuaxin;
+        private ToolStripDropDownButton tsdgetnumber;
         private ToolStripDropDownButton tsdHuifu;
         private ToolStripDropDownButton tsdWuheng;
         private ImageList ilyuanshiBtn;
@@ -48,13 +52,18 @@ namespace My_IE
         public List<WebBrowser> WebBrowserArr = new List<WebBrowser>();
         public List<TabPage> pages = new List<TabPage>();
         public Dictionary<int, string> names = new Dictionary<int, string>();
-        public NameValueCollection ht = new NameValueCollection();  
+        public NameValueCollection ht = new NameValueCollection();
+        public NameValueCollection nb = new NameValueCollection();
+        public DataTable  bhtable = new DataTable();
         private ComboBox comboBox1;
         private TabPage tabPage1;
         private WebBrowser webBrowser1;
         private TabControl tabControl1;
         string textName = "";
+        string alert_info = "";
+        string bhfilename = "";
         int MatchMode = 0;
+        int nb_index = 0;
         public string HisXml = "History.xml";
         private ToolStripMenuItem 我的收藏夹ToolStripMenuItem;
         private ToolStripMenuItem 新建窗口ToolStripMenuItem;
@@ -88,8 +97,8 @@ namespace My_IE
             this.tsdLeft = new System.Windows.Forms.ToolStripDropDownButton();
             this.tsdRight = new System.Windows.Forms.ToolStripDropDownButton();
             this.tsdClose = new System.Windows.Forms.ToolStripDropDownButton();
-            this.tsdShuaxin = new System.Windows.Forms.ToolStripDropDownButton();
             this.tsdZhuye = new System.Windows.Forms.ToolStripDropDownButton();
+            this.tsdgetnumber = new System.Windows.Forms.ToolStripDropDownButton();
             this.tsdHuifu = new System.Windows.Forms.ToolStripDropDownButton();
             this.tsdWuheng = new System.Windows.Forms.ToolStripDropDownButton();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -168,18 +177,18 @@ namespace My_IE
             // pictureBox1
             // 
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(1214, 18);
+            this.pictureBox1.Location = new System.Drawing.Point(1197, 18);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(113, 24);
+            this.pictureBox1.Size = new System.Drawing.Size(130, 24);
             this.pictureBox1.TabIndex = 5;
             this.pictureBox1.TabStop = false;
             // 
             // comboBox1
             // 
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(308, 20);
+            this.comboBox1.Location = new System.Drawing.Point(334, 20);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(852, 20);
+            this.comboBox1.Size = new System.Drawing.Size(826, 20);
             this.comboBox1.TabIndex = 5;
             this.comboBox1.Text = " http://work.hzhailiao.com/admin/?action=check&f=list";
             this.comboBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.comboBox1_KeyDown);
@@ -188,9 +197,9 @@ namespace My_IE
             // 
             this.label1.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label1.Image = ((System.Drawing.Image)(resources.GetObject("label1.Image")));
-            this.label1.Location = new System.Drawing.Point(308, 14);
+            this.label1.Location = new System.Drawing.Point(366, 14);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(887, 30);
+            this.label1.Size = new System.Drawing.Size(777, 30);
             this.label1.TabIndex = 1;
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -204,14 +213,14 @@ namespace My_IE
             this.tsdLeft,
             this.tsdRight,
             this.tsdClose,
-            this.tsdShuaxin,
             this.tsdZhuye,
+            this.tsdgetnumber,
             this.tsdHuifu,
             this.tsdWuheng});
             this.toolStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
             this.toolStrip1.Location = new System.Drawing.Point(1, 1);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(304, 61);
+            this.toolStrip1.Size = new System.Drawing.Size(330, 61);
             this.toolStrip1.TabIndex = 0;
             // 
             // tsdLeft
@@ -262,22 +271,6 @@ namespace My_IE
             this.tsdClose.MouseLeave += new System.EventHandler(this.tsdClose_MouseLeave);
             this.tsdClose.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tsdClose_MouseUp);
             // 
-            // tsdShuaxin
-            // 
-            this.tsdShuaxin.Image = ((System.Drawing.Image)(resources.GetObject("tsdShuaxin.Image")));
-            this.tsdShuaxin.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsdShuaxin.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsdShuaxin.Name = "tsdShuaxin";
-            this.tsdShuaxin.ShowDropDownArrow = false;
-            this.tsdShuaxin.Size = new System.Drawing.Size(36, 52);
-            this.tsdShuaxin.Text = "刷新";
-            this.tsdShuaxin.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.tsdShuaxin.Click += new System.EventHandler(this.tsdShuaxin_Click);
-            this.tsdShuaxin.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tsdShuaxin_MouseDown);
-            this.tsdShuaxin.MouseEnter += new System.EventHandler(this.tsdShuaxin_MouseEnter);
-            this.tsdShuaxin.MouseLeave += new System.EventHandler(this.tsdShuaxin_MouseLeave);
-            this.tsdShuaxin.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tsdShuaxin_MouseUp);
-            // 
             // tsdZhuye
             // 
             this.tsdZhuye.Image = ((System.Drawing.Image)(resources.GetObject("tsdZhuye.Image")));
@@ -294,6 +287,22 @@ namespace My_IE
             this.tsdZhuye.MouseLeave += new System.EventHandler(this.tsdZhuye_MouseLeave);
             this.tsdZhuye.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tsdZhuye_MouseUp);
             // 
+            // tsdgetnumber
+            // 
+            this.tsdgetnumber.Image = ((System.Drawing.Image)(resources.GetObject("tsdgetnumber.Image")));
+            this.tsdgetnumber.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsdgetnumber.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsdgetnumber.Name = "tsdgetnumber";
+            this.tsdgetnumber.ShowDropDownArrow = false;
+            this.tsdgetnumber.Size = new System.Drawing.Size(60, 52);
+            this.tsdgetnumber.Text = "获取编号";
+            this.tsdgetnumber.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.tsdgetnumber.Click += new System.EventHandler(this.tsdShuaxin_Click);
+            this.tsdgetnumber.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tsdShuaxin_MouseDown);
+            this.tsdgetnumber.MouseEnter += new System.EventHandler(this.tsdShuaxin_MouseEnter);
+            this.tsdgetnumber.MouseLeave += new System.EventHandler(this.tsdShuaxin_MouseLeave);
+            this.tsdgetnumber.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tsdShuaxin_MouseUp);
+            // 
             // tsdHuifu
             // 
             this.tsdHuifu.Image = ((System.Drawing.Image)(resources.GetObject("tsdHuifu.Image")));
@@ -305,6 +314,7 @@ namespace My_IE
             this.tsdHuifu.Text = "智能分配";
             this.tsdHuifu.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.tsdHuifu.ToolTipText = "智能分配";
+            this.tsdHuifu.Visible = false;
             this.tsdHuifu.Click += new System.EventHandler(this.tsdHuifu_Click);
             this.tsdHuifu.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tsdHuifu_MouseDown);
             this.tsdHuifu.MouseEnter += new System.EventHandler(this.tsdHuifu_MouseEnter);
@@ -322,6 +332,7 @@ namespace My_IE
             this.tsdWuheng.Text = "自动匹配";
             this.tsdWuheng.TextDirection = System.Windows.Forms.ToolStripTextDirection.Horizontal;
             this.tsdWuheng.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.tsdWuheng.Visible = false;
             this.tsdWuheng.Click += new System.EventHandler(this.tsdWuheng_Click);
             this.tsdWuheng.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tsdWuheng_MouseDown);
             this.tsdWuheng.MouseEnter += new System.EventHandler(this.tsdWuheng_MouseEnter);
@@ -553,6 +564,7 @@ namespace My_IE
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.menuStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(640, 443);
             this.Name = "IEForm";
             this.Text = "浏览器";
@@ -578,11 +590,12 @@ namespace My_IE
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            Directory.SetCurrentDirectory(System.AppDomain.CurrentDomain.BaseDirectory);
             this.tabControl1.ItemSize = new Size(150, tabControl1.ItemSize.Height);
             this.treeView1.Size = new Size(panel2.Size.Width - 1, panel2.Size.Height);
            
             我的收藏夹ToolStripMenuItem_Click(sender, e);
-            ReadXml();
+          //  ReadXml();
           //  ReadLishi();
             WebBrowserArr.Add(webBrowser1);
             webBrowser1.ScriptErrorsSuppressed = true;
@@ -590,16 +603,28 @@ namespace My_IE
             this.ilyuanshiBtn.Images.Add(tsdLeft.Image);
             this.ilyuanshiBtn.Images.Add(tsdRight.Image);
             this.ilyuanshiBtn.Images.Add(tsdClose.Image);
-            this.ilyuanshiBtn.Images.Add(tsdShuaxin.Image);
+            this.ilyuanshiBtn.Images.Add(tsdgetnumber.Image);
 
             this.ilyuanshiBtn.Images.Add(tsdZhuye.Image);
             this.ilyuanshiBtn.Images.Add(tsdHuifu.Image);
             this.ilyuanshiBtn.Images.Add(tsdWuheng.Image);
-            MyThreadParameter paramter2 = new MyThreadParameter("单位专家对照补充表.xls", 0, 1);
-            LoadDataFromExcelToNameValue(paramter2);
+            //bhtable.Columns.Add("xm");
+            //bhtable.Columns.Add("dw");
+            //bhtable.Columns.Add("bh2011");
+            //bhtable.Columns.Add("bh2012");
+            //bhtable.Columns.Add("bh2013");
+         //   bhfilename = Application.StartupPath +"\\历年体检信息.xls";
+            bhfilename = AppDomain.CurrentDomain.BaseDirectory + "历年体检信息.xls";
+            LoadDataFromExcelToDataTable(bhfilename, bhtable);
+            //System.Type.GetType("System.String");
+            //DataColumn colDecimal;
+            //colDecimal = bhtable.Columns["2013年"];
+            //colDecimal.
+            //bhtable.Columns["2012年"].DataType = System.Type.GetType("System.String");
+            //bhtable.Columns["2011年"].DataType = System.Type.GetType("System.String");
 
-            ParameterThread = new Thread(new ParameterizedThreadStart(LoadDataFromExcelToNameValue));
-            MyThreadParameter paramter1 = new MyThreadParameter("体检计划表.xls", 1, 10);
+            ParameterThread = new Thread(new ParameterizedThreadStart(LoadDataFromExcelByThreadParam));
+            MyThreadParameter paramter1 = new MyThreadParameter("体检计划表.xls", 1, 10,ht);
             ParameterThread.Start(paramter1); 
           //  LoadDataFromExcelToNameValue("体检计划表.xls", 1, 10);
            
@@ -801,10 +826,6 @@ namespace My_IE
             this.WebBrowserArr[index].GoHome();
         }
 
-        private void tsdShuaxin_Click(object sender, EventArgs e)
-        {
-            this.WebBrowserArr[index].Refresh();
-        }
         public static bool IsFileCanUse(string fileName)
         {
             bool inUse = true;
@@ -820,89 +841,445 @@ namespace My_IE
            
             return inUse;//true表示正在使用,false没有使用
         }
-        //加载Excel 
-     //   public void LoadDataFromExcelToNameValue(string filePath,int n,int v)
-        public void LoadDataFromExcelToNameValue(Object MS)
+
+        public static bool SaveDataTableToExcel(System.Data.DataTable dt, string filePath, int sourcestartindex, int deststartindex)
         {
+            MyExcel.Application excelApp = new MyExcel.ApplicationClass();
+
             try
-            {   
-                string strConn;
+            {
+                excelApp.Visible = false;
+                if (!File.Exists(filePath))
+                {
+                    MessageBox.Show(filePath + "文件不存在!");
+                    return false;
+                }
+                excelApp.Workbooks.Open(filePath);
+                MyExcel.Worksheet sheet = (MyExcel.Worksheet)excelApp.Worksheets[1];
+                //填充
+                if (dt.Rows.Count > 0)
+                {
+                    int colCount = dt.Columns.Count;
+                    object[,] dataArray = new object[dt.Rows.Count, colCount];
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        for (int j = sourcestartindex; j < colCount; j++)
+                        {
+                            //if (i == 0)
+                            //{
+                            //    //列名作为第一行
+                            //    dataArray[i, j] = dt.Columns[j].ColumnName;
+                            //}
+                            dataArray[i, j - sourcestartindex] = dt.Rows[i][j];
+                        }
+                    }
+                    MyExcel.Range myRange = sheet.get_Range(sheet.Cells[2, deststartindex + 1], sheet.Cells[dt.Rows.Count + 1, colCount + 1]);
+                    //添加数据
+                    //内容体
+                    myRange.Value2 = dataArray;
+                    //设置头样式
+                    //sheet.get_Range(sheet.Cells[1, 1], sheet.Cells[1, colCount]).Interior.ColorIndex = 7;                          
+                    //设置样式
+                    //SetWorksheetStyle(sheet, dt.Rows.Count, colCount);
+                }
+                //刷新Pivot table等内容 
+                excelApp.Workbooks[1].RefreshAll();
+                //保存excel文件
+                MyExcel.Workbook mybook = excelApp.Workbooks[1];
+                mybook.Save();
+                //关闭excel进程
+                mybook.Close(false);
+                //mybook = null;
+                excelApp.Quit();
+                //excelApp = null;
+                GC.Collect();
+                excelApp = null;
+                return true;
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show("写入Excel出错！错误原因：" + err.Message, "提示信息",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return false;
+            }
+            finally
+            {
+            }
+        }
+
+        //加载Excel 
+        //   public void LoadDataFromExcelToNameValue(string filePath,int n,int v)
+        public void LoadDataFromExcelByThreadParam(Object MS)
+        {
+            if (MS is MyThreadParameter)
+            {
                 MyThreadParameter parameter = MS as MyThreadParameter;//类型转换 
                 String filePath = parameter.filename;
                 int n = parameter.dw;
                 int v = parameter.zj;
-                strConn = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + filePath + ";Extended Properties='Excel 8.0;HDR=False;IMEX=1'";
-                OleDbConnection OleConn = new OleDbConnection(strConn);
-                OleConn.Open();
-                DataTable dt = OleConn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
-                string tableName = dt.Rows[0][2].ToString().Trim();
-                String sql = "SELECT * FROM  [" + tableName  + "]";//可是更改Sheet名称，比如sheet2，等等 
-                OleDbCommand DbCommand = new OleDbCommand(sql, OleConn);
-                OleDbDataReader OleReader = DbCommand.ExecuteReader();
+                LoadDataFromExcelToNameValue(parameter.filename, parameter.dw, parameter.zj,parameter.nv);
+            }
+        }
+        public void  LoadDataFromExcelToDataTable(string filePath, DataTable destDT)
+        {
+            string strConn = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + filePath + ";Extended Properties='Excel 8.0;HDR=False;IMEX=1'";
+            OleDbConnection OleConn = new OleDbConnection(strConn);
+            OleConn.Open();
+            DataTable dt = OleConn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+            string tableName = dt.Rows[0][2].ToString().Trim();
+            String sql = "SELECT * FROM  [" + tableName + "]";//可是更改Sheet名称，比如sheet2，等等 
+            OleDbCommand DbCommand = new OleDbCommand(sql, OleConn);
+            OleDbDataReader OleReader = DbCommand.ExecuteReader();
+
+            OleDbDataAdapter OleDaExcel = new OleDbDataAdapter(sql, OleConn);
+           // DataSet OleDsExcle = new DataSet();
+            OleDaExcel.Fill(destDT);
+            OleConn.Close();
+        }
+        public void LoadDataFromExcelToNameValue(string filePath, int n, int v, NameValueCollection nv)
+        {
+  
+            string strConn = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + filePath + ";Extended Properties='Excel 8.0;HDR=False;IMEX=1'";
+            OleDbConnection OleConn = new OleDbConnection(strConn);
+            OleConn.Open();
+            DataTable dt = OleConn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+            string tableName = dt.Rows[0][2].ToString().Trim();
+            String sql = "SELECT * FROM  [" + tableName  + "]";//可是更改Sheet名称，比如sheet2，等等 
+            OleDbCommand DbCommand = new OleDbCommand(sql, OleConn);
+            OleDbDataReader OleReader = DbCommand.ExecuteReader();
                 
-                //OleDbDataAdapter OleDaExcel = new OleDbDataAdapter(sql, OleConn);
-                DataSet OleDsExcle = new DataSet();
-                //OleDaExcel.Fill(OleDsExcle, tableName);
-             //   OleReader.;
-                int blank = 0;
-               /* if (OleDsExcle.Tables.Count > 0)
+            DataSet OleDsExcle = new DataSet();
+            int blank = 0;
+
+            if (OleReader.HasRows)
+            {
+                while (OleReader.Read())
                 {
-                    foreach (DataRow mDr in OleDsExcle.Tables[0].Rows)
+                    if (OleReader[n].ToString() != "")
+                        nv.Add(OleReader[n].ToString(), OleReader[v].ToString());
+                    else
+                        blank++;
+                    if (blank > 5) break;
+                }
+            }
+            OleReader.Close();                
+            OleConn.Close();
+        }
+        private void tsdShuaxin_Click(object sender, EventArgs e)
+        {
+            try
+            { 
+                if (webBrowser1.Document == null)
+                {
+                    MessageBox.Show("请进入体检报告管理页面，再重试！", "提醒", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                    return;
+                }
+                foreach (HtmlElement he in webBrowser1.Document.GetElementsByTagName("input"))
+                {
+
+                    if ((he.GetAttribute("name") == "text") && (he.GetAttribute("type") == "text"))
                     {
-                        if (mDr[OleDsExcle.Tables[0].Columns[n]].ToString() != "")
-                            ht.Add(mDr[OleDsExcle.Tables[0].Columns[n]].ToString(), mDr[OleDsExcle.Tables[0].Columns[v]].ToString());
-                        else
-                            blank++;
-                        if (blank > 6) break;
-                    }
-                }*/
-                if (OleReader.HasRows)
-                {
-                   while (OleReader.Read())
-                   {
-                       if (OleReader[n].ToString() != "")
-                           ht.Add(OleReader[n].ToString(), OleReader[v].ToString());
-                        else
-                            blank++;
-                        if (blank > 5) break;
+                        nb_index = 0;
+                        if (nb_index < bhtable.Rows.Count)
+                        {
+                          string xm = bhtable.Rows[nb_index][2].ToString().Replace(" ","");
+                          if (xm != "")
+                          {
+                              he.SetAttribute("value", xm);
+                              he.Parent.Parent.NextSibling.NextSibling.FirstChild.InvokeMember("click");
+                              MatchMode = 3;
+                          }
+                        }
                     }
                 }
-                OleReader.Close();                
-                OleConn.Close();
-                //return ht;
             }
-            catch (Exception err)
+            catch (DataException ed)
             {
-                MessageBox.Show("数据绑定Excel失败!失败原因：" + err.Message, "提示信息",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-               // return null;
+                MessageBox.Show(ed.Message.ToString(), "出错", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
             }
+            //     HtmlElement et = webBrowser1.Document.Forms["form2"];
+            this.Select(false, false);
+        }
+        private void tsdWuheng_Click(object sender, EventArgs e)
+        {
+            if ((ParameterThread != null) && (ParameterThread.IsAlive))
+            {
+                MessageBox.Show("数据还未加载完成，请稍后再试！", "提醒", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                return;
+            }
+            if (webBrowser1.Document == null)
+            {
+                MessageBox.Show("请进入体检报告管理页面，再重试！", "提醒", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                return;
+            }
+            foreach (HtmlElement he in webBrowser1.Document.GetElementsByTagName("a"))
+            {
+
+                if (he.GetAttribute("className") == "cc")
+                {
+                    he.InvokeMember("click");
+                    MatchMode = 1;
+                }
+            }
+
+            //     HtmlElement et = webBrowser1.Document.Forms["form2"];
+
+            this.Select(false, false);
+        }
+
+        private void tsdHuifu_Click(object sender, EventArgs e)
+        {
+            if ((ParameterThread != null) && (ParameterThread.IsAlive))
+            {
+                MessageBox.Show("数据还未加载完成，请稍后再试！", "提醒", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                return;
+            }
+            if (webBrowser1.Document == null)
+            {
+                MessageBox.Show("请进入体检报告管理页面，再重试！", "提醒", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                return;
+            }
+            foreach (HtmlElement he in webBrowser1.Document.GetElementsByTagName("a"))
+            {
+
+                if (he.GetAttribute("className") == "cc")
+                {
+                    he.InvokeMember("click");
+                    MatchMode = 2;
+                }
+            }
+            //     HtmlElement et = webBrowser1.Document.Forms["form2"];
+            this.Select(false, false);
+
+        }
+        private CookieContainer AddCookies()
+        {
+            CookieContainer objcok = new CookieContainer();
+
+            if (webBrowser1.Document.Cookie != null)
+             {
+                 string cookieStr = webBrowser1.Document.Cookie;
+                 string[] cookstr = cookieStr.Split(';');
+                foreach (string str in cookstr)
+                 {
+                   string[] cookieNameValue = str.Split('=');
+                     Cookie ck = new Cookie(cookieNameValue[0].Trim().ToString(), cookieNameValue[1].Trim().ToString());
+                     //ck.Domain = "http://work.hzhailiao.com";
+                     objcok.Add(new Uri("http://work.hzhailiao.com"), ck);
+                 }
+             }
+            return objcok;
+        }
+        private string get(string strURL)
+        {
+            HttpWebRequest request = (System.Net.HttpWebRequest)WebRequest.Create(strURL);
+            request.CookieContainer = AddCookies();
+            HttpWebResponse response = (System.Net.HttpWebResponse)request.GetResponse();
+            System.IO.StreamReader myreader = new System.IO.StreamReader(response.GetResponseStream(), Encoding.UTF8);
+            string responseText = myreader.ReadToEnd();
+            myreader.Close();
+            return responseText;
+        }
+        private string post(string strURL, NameValueCollection queryString)
+        {
+            HttpWebRequest request = (System.Net.HttpWebRequest)WebRequest.Create(strURL);
+            request.CookieContainer = AddCookies();
+            request.Method = "POST";
+            request.Accept = "text/plain, */*; q=0.01";
+            request.ContentType = "application/x-www-form-urlencoded";
+            //    request.
+            byte[] byteArray = Encoding.GetEncoding("gb2312").GetBytes(queryString.ToString());
+            request.ContentLength = byteArray.Length;
+            Stream newStream = request.GetRequestStream();
+            newStream.Write(byteArray, 0, byteArray.Length);    //写入参数
+            newStream.Close();
+
+            // request.Headers.Add(queryString);
+            HttpWebResponse response = (System.Net.HttpWebResponse)request.GetResponse();
+            System.IO.StreamReader myreader = new System.IO.StreamReader(response.GetResponseStream(), Encoding.UTF8);
+            string responseText = myreader.ReadToEnd();
+            myreader.Close();
+            return responseText;
         }
         private void DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
-            if (WebBrowserArr[index].Document.Url.ToString() == "about:blank")
+            try
             {
-                this.Text = "欢迎来到我的IE浏览器！";
-                pages[index].Text = "空白页";
-                this.comboBox1.Text = "about:blank";
-            }
-            else if (WebBrowserArr[index].Document.Url.ToString() == "http://work.hzhailiao.com/admin/?action=check&f=list&text=0&field=uexpert_name")
-            {
-                this.Text = this.WebBrowserArr[index].DocumentTitle;
-                this.comboBox1.Text = WebBrowserArr[index].Document.Url.ToString();
-                this.comboBox1.Items.Remove(this.comboBox1.Text);
-                this.comboBox1.Items.Add(WebBrowserArr[index].Document.Url.ToString());
-                this.comboBox1.Text = WebBrowserArr[index].Document.Url.ToString();
-                string expertname = "";
-                foreach (HtmlElement he in webBrowser1.Document.GetElementsByTagName("div"))
+                if (WebBrowserArr[index].Document.Url.ToString() == "about:blank")
                 {
-                    if (he.GetAttribute("className") == "t-number")
+                    this.Text = "欢迎来到我的IE浏览器！";
+                    pages[index].Text = "空白页";
+                    this.comboBox1.Text = "about:blank";
+                }
+                else if ((MatchMode == 3) && (WebBrowserArr[index].Document.Url.ToString().IndexOf("work.hzhailiao.com/admin/index.php?action=check&f=list&text") != -1))
+                {
+                    string bh2013 = "";
+                    string bh2012 = "";
+                    string bh2011 = "";
+                    string xm = "";
+                    string dw = "";
+                    string IdCard = "";
+                    if (nb_index <= bhtable.Rows.Count)
                     {
-                        //   he.InvokeMember("click");
-                        // webBrowser1.Parent.Text = 
-                        string s = he.Parent.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.InnerText;
+                        xm = bhtable.Rows[nb_index][2].ToString().Replace(" ","");
+                        dw = bhtable.Rows[nb_index][1].ToString().Trim();
+                        IdCard = bhtable.Rows[nb_index][3].ToString().Trim();
+                        webBrowser1.Parent.Text = "读取Excel第" + (nb_index + 1) + "行:" + dw + " " + xm ;
+                   //    webBrowser1.Document.Cookie
+                        foreach (HtmlElement he in webBrowser1.Document.GetElementsByTagName("div"))
+                        {
+                            if (he.GetAttribute("className") == "t-number")
+                            {
+                                string wdw = he.Parent.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.InnerText;
+                                string wxm = "";
+                                //if (he.Parent.NextSibling.NextSibling.NextSibling.NextSibling.FirstChild != null)
+                                //{
+                                //    wxm = he.Parent.NextSibling.NextSibling.NextSibling.NextSibling.FirstChild.InnerText.Replace(" ", ""); 
+                           
+                                //}
+                                wxm =  he.Parent.NextSibling.NextSibling.NextSibling.NextSibling.InnerText.Replace(" ", "");
+                               
+                                if ((wdw.IndexOf(dw) != -1) && (xm == wxm))
+                                {
+                                    string wsj = he.Parent.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.InnerText;
 
-                            
+                                    string bh = he.Parent.NextSibling.NextSibling.InnerText;
+                                    if (wsj.IndexOf("2011") != -1)
+                                    {
+                                        if (bh2011 == "")
+                                            bh2011 = bh2011 + bh;
+                                        else
+                                            bh2011 = bh2011 + "." + bh;
+                                    }
+                                    else if (wsj.IndexOf("2012") != -1)
+                                    {
+                                        if (bh2012 == "")
+                                            bh2012 = bh2012 + bh;
+                                        else
+                                            bh2012 = bh2012 + "." + bh;
+                                    }
+                                    else if (wsj.IndexOf("2013") != -1)
+                                    {
+                                        if (bh2013 == "")
+                                            bh2013 = bh2013 + bh;
+                                        else
+                                            bh2013 = bh2013 + "." + bh;
+                                    }
+                                }
+                            }                           
+                        }
+                        DataRow dr = bhtable.Rows[nb_index];
+                        string packstring = "";
+                        if (bh2011.IndexOf(".") != -1)
+                        {
+                            packstring = packstring + "  2011年体检编号查到有多个：" + bh2011;
+                            //    alert_info = alert_info + dw + "  有重复的姓名:" + xm + "  2011年体检编号查到有多个：" + bh2011 + "\r\n";
+                        }
+                        if (bh2012.IndexOf(".") != -1)
+                        {
+                            packstring = packstring + "  2012年体检编号查到有多个：" + bh2012;
+                            //   alert_info = alert_info + dw + "  有重复的姓名:" + xm + "  2012年体检编号查到有多个：" + bh2012 + "\r\n";
+                        }
+                        if (bh2013.IndexOf(".") != -1)
+                        {
+                            packstring = packstring + "  2013年体检编号查到有多个：" + bh2013;
+                            //  alert_info = alert_info + dw + "  有重复的姓名:" + xm + "  2013年体检编号查到有多个：" + bh2013 + "\r\n";
+                        }
+                        if (packstring != "")
+                        {
+                            alert_info = alert_info + dw + "  有重复的姓名:" + xm + packstring + "，请人工识别后手工添加体检编号和身份证号！\r\n";
+                        }
+                        else
+                        {//work.hzhailiao.com/admin/index.php
+
+                            dr["2011年"] = bh2011;
+                            dr["2012年"] = bh2012;
+                            dr["2013年"] = bh2013;
+                            foreach (HtmlElement he in webBrowser1.Document.GetElementsByTagName("div"))
+                            { 
+                                if (he.GetAttribute("className") == "t-number")
+                                {
+                                    HtmlElement htmp = he.Parent.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.FirstChild.NextSibling.NextSibling.NextSibling.NextSibling;
+
+                                    if (htmp.InnerText.IndexOf("添加身份证") >= 0)
+                                    {
+                                        string wdw = he.Parent.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.InnerText;
+                                        string wxm;
+                                        if (he.Parent.NextSibling.NextSibling.NextSibling.NextSibling.FirstChild != null)
+                                        {
+                                            wxm = he.Parent.NextSibling.NextSibling.NextSibling.NextSibling.FirstChild.InnerText.Replace(" ", "");
+                                        }
+                                        else
+                                        {
+                                            wxm = he.Parent.NextSibling.NextSibling.NextSibling.NextSibling.InnerText.Replace(" ", "");
+                                        }
+                                        if ((wdw.IndexOf(dw) != -1) && (xm == wxm))
+                                        {
+                                            if (IdCard != "")
+                                            {
+                                                //NameValueCollection queryString = System.Web.HttpUtility.ParseQueryString(string.Empty, Encoding.UTF8);
+                                                //queryString["action"] = "check";
+                                                //queryString["f"] = "update_idnum";
+                                                //queryString["crid"] = htmp.GetAttribute("alt").Trim();
+                                                //queryString["newid"] = IdCard;
+                                                //if (post("http://work.hzhailiao.com/admin/index.php", queryString).IndexOf("success") == -1)
+                                                //{
+                                                //    alert_info = alert_info + dw + " 姓名：" + xm + "  更新身份证失败\r\n";
+                                                //}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        foreach (HtmlElement he in webBrowser1.Document.GetElementsByTagName("input"))
+                        {
+
+                            if ((he.GetAttribute("name") == "text") && (he.GetAttribute("type") == "text"))
+                            {
+                                //    nb_index = 1;
+
+                                nb_index++;
+                                if ((nb_index < bhtable.Rows.Count) && (bhtable.Rows[nb_index]["姓名"].ToString().Trim() !=""))
+                                {
+                                    xm = bhtable.Rows[nb_index]["姓名"].ToString().Trim();                                
+                                    he.SetAttribute("value", xm);
+                                    he.Parent.Parent.NextSibling.NextSibling.FirstChild.InvokeMember("click");
+                                }
+                                else
+                                {
+                                    MatchMode = 0;
+                                    SaveDataTableToExcel(bhtable, bhfilename, 5, 5);
+                                    if (alert_info.Trim() != "")
+                                    {
+                                        MessageBox.Show(alert_info, "异常", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("体检编号写入Excel成功,身份证号上传网站成功！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (WebBrowserArr[index].Document.Url.ToString() == "http://work.hzhailiao.com/admin/?action=check&f=list&text=0&field=uexpert_name")
+                {
+                    this.Text = this.WebBrowserArr[index].DocumentTitle;
+                    this.comboBox1.Text = WebBrowserArr[index].Document.Url.ToString();
+                    this.comboBox1.Items.Remove(this.comboBox1.Text);
+                    this.comboBox1.Items.Add(WebBrowserArr[index].Document.Url.ToString());
+                    this.comboBox1.Text = WebBrowserArr[index].Document.Url.ToString();
+                    string expertname = "";
+                    foreach (HtmlElement he in webBrowser1.Document.GetElementsByTagName("div"))
+                    {
+                        if (he.GetAttribute("className") == "t-number")
+                        {
+                            //   he.InvokeMember("click");
+                            // webBrowser1.Parent.Text = 
+                            string s = he.Parent.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.InnerText;
+
+
                             foreach (string key in ht.Keys)
                             {
                                 string skey = key.Trim();
@@ -919,7 +1296,7 @@ namespace My_IE
                                                     expertname = ht[skey].Trim();
                                                     el.InvokeMember("click");
                                                     he.FirstChild.FirstChild.InvokeMember("click");
-                                                    webBrowser1.Parent.Text = expertname; 
+                                                    webBrowser1.Parent.Text = expertname;
                                                 }
                                             }
                                         }
@@ -932,31 +1309,36 @@ namespace My_IE
                                                 ele.FirstChild.InvokeMember("click");
                                         }
                                     }
-                                    else if (expertname.Trim()  == "")
-                                    {
-                                       // ShowDialog();
-                                        MessageBox.Show("本页体检信息在EXCEL里未找到对应的记录！", "未找到", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                                       // this.TopMost = true;
-                                        //this.Activate();
-                                        return;
-                                    }
+
                                 }
-                               
-                            } 
-                     }
+
+                            }
+                        }
+                    }
+                    if (expertname.Trim() == "")
+                    {
+                        // ShowDialog();
+                        MessageBox.Show("本页体检信息在EXCEL里未找到对应的记录！", "未找到", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                        // this.TopMost = true;
+                        //this.Activate();
+                        return;
+                    }
+
                 }
+                else
+                {
+                    this.Text = this.WebBrowserArr[index].DocumentTitle;
+                    this.comboBox1.Text = WebBrowserArr[index].Document.Url.ToString();
+                    this.comboBox1.Items.Remove(this.comboBox1.Text);
+                    this.comboBox1.Items.Add(WebBrowserArr[index].Document.Url.ToString());
+                    this.comboBox1.Text = WebBrowserArr[index].Document.Url.ToString();
 
+                }
             }
-            else
+            catch (System.Exception exception)
             {
-                this.Text = this.WebBrowserArr[index].DocumentTitle;
-                this.comboBox1.Text = WebBrowserArr[index].Document.Url.ToString();
-                this.comboBox1.Items.Remove(this.comboBox1.Text);
-                this.comboBox1.Items.Add(WebBrowserArr[index].Document.Url.ToString());
-                this.comboBox1.Text = WebBrowserArr[index].Document.Url.ToString();
-
+                MessageBox.Show(exception.Message.ToString());
             }
-
         }
 
 
@@ -1070,22 +1452,22 @@ namespace My_IE
 
         private void tsdShuaxin_MouseDown(object sender, MouseEventArgs e)
         {
-            this.tsdShuaxin.Image = ildianjiBTN.Images[3];
+            this.tsdgetnumber.Image = ildianjiBTN.Images[3];
         }
 
         private void tsdShuaxin_MouseEnter(object sender, EventArgs e)
         {
-            this.tsdShuaxin.Image = iljingguoBtn.Images[3];
+            this.tsdgetnumber.Image = iljingguoBtn.Images[3];
         }
 
         private void tsdShuaxin_MouseLeave(object sender, EventArgs e)
         {
-            this.tsdShuaxin.Image = ilyuanshiBtn.Images[3];
+            this.tsdgetnumber.Image = ilyuanshiBtn.Images[3];
         }
 
         private void tsdShuaxin_MouseUp(object sender, MouseEventArgs e)
         {
-            this.tsdShuaxin.Image = iljingguoBtn.Images[3];
+            this.tsdgetnumber.Image = iljingguoBtn.Images[3];
         }
 
         private void tsdZhuye_MouseDown(object sender, MouseEventArgs e)
@@ -1259,91 +1641,7 @@ namespace My_IE
             fs.Close();
         }
 
-        private void tsdWuheng_Click(object sender, EventArgs e)
-        {
-           /*  if (MessageBox.Show("确定清空历史记录吗?", "操作提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
-            {
-                FileInfo fi = new FileInfo("Lishi.txt");
-                fi.Delete();
-                this.comboBox1.Items.Clear();
-                treeView1.Nodes[1].Nodes.Clear(); 
-            }*/
-           // HtmlElement btnAdd = webBrowser1.Document.GetElementsByTagName();
-            if ((ParameterThread!=null) &&  (ParameterThread.IsAlive))
-            {
-                MessageBox.Show("数据还未加载完成，请稍后再试！", "提醒", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                return;
-            }
-            if (webBrowser1.Document == null)
-            {
-                MessageBox.Show("请进入体检报告管理页面，再重试！", "提醒", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                return;
-            }
-             foreach (HtmlElement he in webBrowser1.Document.GetElementsByTagName("a"))
-            {
-
-                if (he.GetAttribute("className") == "cc")
-                {
-                    he.InvokeMember("click");
-                    MatchMode = 1;
-                }
-            }
-
-        //     HtmlElement et = webBrowser1.Document.Forms["form2"];
-            
-            this.Select(false, false);
-        }
-
-        private void tsdHuifu_Click(object sender, EventArgs e)
-        {
-            /*GetChange = false;
-            WebBrowser web = new WebBrowser();
-            textName = "空白页";
-            Console.WriteLine(index.ToString());
-
-            WebBrowser newWeb = new WebBrowser();
-            TabPage tab = new TabPage();
-
-            tabControl1.Controls.Add(tab);
-
-            newWeb.Dock = DockStyle.Fill;
-           
-            newWeb.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(Navigating);
-            newWeb.NewWindow += new System.ComponentModel.CancelEventHandler(NewWindow);
-            newWeb.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(DocumentCompleted);
-            WebBrowserArr.Add(newWeb);
-            pages.Add(tab);
-            tab.Controls.Add(newWeb);
-            tabControl1.SelectedIndex = tabControl1.Controls.Count - 1;
-            newWeb.Navigate("http://www.baidu.com");
-            this.comboBox1.Text = newWeb.DocumentTitle;
-            tab.Width = 150;
-            GetChange = true;*/
-            if ((ParameterThread != null) && (ParameterThread.IsAlive))
-            {
-                MessageBox.Show("数据还未加载完成，请稍后再试！", "提醒", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                return;
-            }
-            if (webBrowser1.Document == null)
-            {
-                MessageBox.Show("请进入体检报告管理页面，再重试！", "提醒", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                return;
-            }
-            foreach (HtmlElement he in webBrowser1.Document.GetElementsByTagName("a"))
-            {
-
-                if (he.GetAttribute("className") == "cc")
-                {
-                    he.InvokeMember("click");
-                    MatchMode = 2;
-                }
-            }
-
-            //     HtmlElement et = webBrowser1.Document.Forms["form2"];
-
-            this.Select(false, false);
-
-        }
+      
 
         private void 主页ToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1401,6 +1699,7 @@ namespace My_IE
         private int m_dw;
         private int m_zj;
         private string m_fileName;
+        private NameValueCollection m_nv;
         public string filename
         {
             get { return m_fileName; }
@@ -1414,11 +1713,16 @@ namespace My_IE
         {
             get { return m_zj; }
         }
-        public MyThreadParameter(string filename, int dw, int zj)
+        public NameValueCollection nv
+        {
+            get { return m_nv; }
+        }
+        public MyThreadParameter(string filename, int dw, int zj, NameValueCollection nv)
         {
             this.m_fileName = filename;
             this.m_dw = dw;
             this.m_zj = zj;
+            this.m_nv = nv;
         }
     }
 }
